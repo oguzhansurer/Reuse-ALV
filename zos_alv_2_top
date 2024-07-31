@@ -1,0 +1,29 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZOS_ALV_2_TOP
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&  Include           ZOS_ALV_2_TOP
+*&---------------------------------------------------------------------*
+
+DATA: BEGIN OF gt_list OCCURS 0,
+  ebeln TYPE EBELN,
+  ebelp TYPE EBELP,
+  bstyp TYPE BSTYP,
+  bsart TYPE BSART,
+  matnr TYPE MATNR,
+  menge TYPE BSTMG,
+  meins TYPE MEINS,
+  selkz TYPE char1,
+END OF gt_list.
+
+DATA:
+*      gt_list TYPE TABLE OF gty_list,
+      gs_list like line of gt_list.
+
+DATA: gt_fieldcatalog TYPE slis_t_fieldcat_alv,
+      gs_fieldcatalog TYPE slis_fieldcat_alv.
+
+DATA gs_layout TYPE slis_layout_alv.
+
+DATA: gt_events TYPE slis_t_event,
+      gs_event TYPE slis_alv_event.
