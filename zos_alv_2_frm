@@ -1,6 +1,6 @@
 *---------------------------------------------------------------------*
 *&  Include           ZOS_ALV_2_FRM
-*&---------------------------------------------------------------------*
+*---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *&      Form  GET_DATA
 *&---------------------------------------------------------------------*
@@ -39,6 +39,8 @@ form set_fc .
     changing
       ct_fieldcat        = gt_fieldcatalog.
 
+ENDFORM.
+
 *  ------->Bu şekilde yapılabilir
 *
 *  PERFORM: set_fc_sub USING 'EBELN' 'SAS NO' 'SAS numarası' 'SAS numarası' abap_true '0' '' '',
@@ -48,8 +50,7 @@ form set_fc .
 *           set_fc_sub USING 'MATNR' 'Malzeme' 'Malzeme' 'Malzeme' abap_false '2' '' '',
 *           set_fc_sub USING 'BSTMG' 'MIKTAR' 'MIKTAR' 'MIKTAR' abap_false '3' '' '',
 *           set_fc_sub USING 'MEINS' 'ÖB' 'Ölçü Birimi' 'Ölçü Birimi' abap_false '6' '' ''.
-*
-ENDFORM.
+*ENDFORM.
 *  FORM set_fc_sub USING p_fieldname
 *                      p_seltext_s
 *                      p_seltext_m
@@ -131,7 +132,8 @@ ENDFORM.
 *APPEND gs_fieldcatalog TO gt_fieldcatalog.
 * ------->Bu şekilde yapılabilir(ama hatalı çalışıyor)
 
-*endform.                    " SET_FC
+
+
 *&---------------------------------------------------------------------*
 *&      Form  SET_LAYOUT
 *&---------------------------------------------------------------------*
@@ -146,6 +148,7 @@ FORM set_layout .
   gs_layout-colwidth_optimize = abap_true.
   gs_layout-box_fieldname ='SELKZ'.
 ENDFORM.                   " SET_LAYOUT
+
 *&---------------------------------------------------------------------*
 *&      Form  DISPLAY_ALV
 *&---------------------------------------------------------------------*
@@ -166,64 +169,32 @@ form display_alv .
   gs_event-form = 'PF_STATUS_SET'.
   append gs_event to gt_events.
 
-
-
   call function 'REUSE_ALV_GRID_DISPLAY'
     exporting
-*     I_INTERFACE_CHECK  = ' '
-*     I_BYPASSING_BUFFER = ' '
-*     I_BUFFER_ACTIVE    = ' '
       i_callback_program = sy-repid
-     I_CALLBACK_PF_STATUS_SET          = 'PF_STATUS_SET '
-     I_CALLBACK_USER_COMMAND           = 'USER_COMMAND'
-*     I_CALLBACK_TOP_OF_PAGE            = 'TOP_OF_PAGE '
-*     I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
-*     I_CALLBACK_HTML_END_OF_LIST       = ' '
-*     I_STRUCTURE_NAME   =
-*     I_BACKGROUND_ID    = ' '
-*     I_GRID_TITLE       =
-*     I_GRID_SETTINGS    =
-      is_layout          = gs_layout
-      it_fieldcat        = gt_fieldcatalog
-*     IT_EXCLUDING       =
-*     IT_SPECIAL_GROUPS  =
-*     IT_SORT            =
-*     IT_FILTER          =
-*     IS_SEL_HIDE        =
-*     I_DEFAULT          = 'X'
-*     I_SAVE             = ' '
-*     IS_VARIANT         =
-      it_events          = gt_events
-*     IT_EVENT_EXIT      =
-*     IS_PRINT           =
-*     IS_REPREP_ID       =
-*     I_SCREEN_START_COLUMN             = 0
-*     I_SCREEN_START_LINE               = 0
-*     I_SCREEN_END_COLUMN               = 0
-*     I_SCREEN_END_LINE  = 0
-*     I_HTML_HEIGHT_TOP  = 0
-*     I_HTML_HEIGHT_END  = 0
-*     IT_ALV_GRAPHICS    =
-*     IT_HYPERLINK       =
-*     IT_ADD_FIELDCAT    =
-*     IT_EXCEPT_QINFO    =
-*     IR_SALV_FULLSCREEN_ADAPTER        =
-* IMPORTING
-*     E_EXIT_CAUSED_BY_CALLER           =
-*     ES_EXIT_CAUSED_BY_USER            =
+      I_CALLBACK_PF_STATUS_SET = 'PF_STATUS_SET '
+      I_CALLBACK_USER_COMMAND = 'USER_COMMAND'
+      is_layout = gs_layout
+      it_fieldcat = gt_fieldcatalog
+      it_events = gt_events
     tables
-      t_outtab           = gt_list
-* EXCEPTIONS
-*     PROGRAM_ERROR      = 1
-*     OTHERS             = 2
+      t_outtab = gt_list
     .
+
   if sy-subrc <> 0.
 * Implement suitable error handling here
   endif.
 endform.                    " DISPLAY_ALV
 
+*&---------------------------------------------------------------------*
+*&      Form  TOP_OF_PAGE
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
 form top_of_page.
-
   data: lt_header type slis_t_listheader,
         ls_header type slis_listheader.
 
@@ -232,18 +203,10 @@ form top_of_page.
   data: lv_lines   type i,
         lv_lines_c type char4.
 
-
-
-
-
-
   clear : ls_header.
   ls_header-typ = 'H'.
   ls_header-info = 'SNI Technology'.
   append ls_header to lt_header.
-
-
-
 
   clear : ls_header.
   ls_header-typ = 'S'.
@@ -256,9 +219,6 @@ form top_of_page.
               into lv_date.
   ls_header-info = lv_date.
   append ls_header to lt_header.
-
-
-
 
   clear : ls_header.
 
@@ -266,127 +226,115 @@ form top_of_page.
   lv_lines_c = lv_lines.
 
   ls_header-typ = 'A'.
-
   concatenate 'Raporda Toplam'
               lv_lines_c
               'adet satır vardır'
               into ls_header-info
               SEPARATED BY space.
-
   append ls_header to lt_header.
-
-
-
-
 
   call function 'REUSE_ALV_COMMENTARY_WRITE'
     exporting
       it_list_commentary = lt_header.
+endform.                    " TOP_OF_PAGE
 
+*&---------------------------------------------------------------------*
+*&      Form  END_OF_LIST
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  END_OF_LIST
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Form  END_OF_LIST
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+*  -->  p1        text
+*  <--  p2        text
+*----------------------------------------------------------------------*
+FORM end_of_list.
+  DATA: lt_header TYPE slis_t_listheader,
+        ls_header TYPE slis_listheader.
 
+  DATA: lv_date TYPE char10.
 
+  DATA: lv_lines   TYPE i,
+        lv_lines_c TYPE char4.
 
-endform.
-form end_of_list.
- data: lt_header type slis_t_listheader,
-        ls_header type slis_listheader.
+  DATA: lv_last_updated TYPE ekko-aedat.
 
-  data: lv_date type char10.
+  " Belgenin son güncelleme tarihini veritabanından alıyoruz
+  SELECT SINGLE aedat
+    INTO lv_last_updated
+    FROM ekko
+    WHERE ebeln = gt_list-ebeln. " Koşul kısmını uygun şekilde ayarlayın
 
-  data: lv_lines   type i,
-        lv_lines_c type char4.
+  IF sy-subrc = 0.
+    " Tarihi uygun formata dönüştürme
+    CONCATENATE lv_last_updated+6(2)
+                '.'
+                lv_last_updated+4(2)
+                '.'
+                lv_last_updated+0(4)
+                INTO lv_date.
+  ELSE.
+    " Eğer tarih alınamazsa veya hata oluşursa
+    lv_date = 'Tarih Bulunamadı'.
+  ENDIF.
 
-  DATA: lv_column_count type i,
-        lv_coloums_c TYPE char4.
-
-
-
-
-  clear : ls_header.
+  CLEAR : ls_header.
   ls_header-typ = 'H'.
   ls_header-info = 'SNI Technology'.
-  append ls_header to lt_header.
+  APPEND ls_header TO lt_header.
 
+  CLEAR : ls_header.
+*  ls_header-typ = 'S'.
+*  ls_header-key = 'Date : '.
+*  ls_header-info = lv_date.
+*  APPEND ls_header TO lt_header.
 
+  CLEAR : ls_header.
 
-
-  clear : ls_header.
-  ls_header-typ = 'S'.
-  ls_header-key = 'Date : '.
-  concatenate sy-datum+6(2)
-              '.'
-              sy-datum+4(2)
-              '.'
-              sy-datum+0(4)
-              into lv_date.
-  ls_header-info = lv_date.
-  append ls_header to lt_header.
-
-
-
-
-* clear : ls_header.
-*
-*  describe table gt_list lines lv_lines.
-*  lv_lines_c = lv_lines.
-*
-* gv_fieldcount = lines( gt_fieldcat ).
-*DATA: gt_fieldcat TYPE lvc_t_fcat,
-*      gv_fieldcount TYPE i.
-*
-*  concatenate 'Raporda Toplam'
-*              gv_fieldcount
-*              'adet sütun vardır'
-*              into ls_header-info
-*              SEPARATED BY space.
-*  append ls_header to lt_header.
-
- clear : ls_header.
-
-  describe table gt_list lines lv_column_count.
-
+  " Kolon sayısını belirleme
+  DATA: lv_column_count TYPE char4.
   lv_column_count = LINES( gt_fieldcatalog ).
-  lv_coloums_c = lv_column_count.
-  CONDENSE  lv_coloums_c.
-   ls_header-typ = 'A'.
-    concatenate 'Raporda Toplam'
-             lv_coloums_c
+  CONDENSE lv_column_count.
+
+  ls_header-typ = 'A'.
+  CONCATENATE 'Raporda Toplam'
+              lv_column_count
               'adet sütun vardır'
-              into ls_header-info
+              INTO ls_header-info
+              SEPARATED BY space.
+  APPEND ls_header TO lt_header.
+
+  CLEAR : ls_header.
+
+  " Belgenin en son güncelleme tarihini göster
+  CONCATENATE 'Belge en son güncelleme tarihi: '
+              lv_date
+              INTO ls_header-info
               SEPARATED BY space.
 
-  append ls_header to lt_header.
- clear : ls_header.
+  ls_header-typ = 'A'.
+  APPEND ls_header TO lt_header.
 
-* describe table gt_list lines lv_lines.
-*  lv_lines_c = lv_lines.
-*
-*  ls_header-typ = 'A'.
-*
-*  concatenate 'Raporda Toplam'
-*              lv_lines_c
-*              'adet satır vardır'
-*              into ls_header-info
-*              SEPARATED BY space.
-*    append ls_header to lt_header.
-* clear : ls_header.
-
-
-
-  call function 'REUSE_ALV_COMMENTARY_WRITE'
-    exporting
+  CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE'
+    EXPORTING
       it_list_commentary = lt_header.
 
-endform.
+ENDFORM.
 
-*
-*" ALV grid için field catalog oluştur
-
-*
-*" Field catalog'daki sütun sayısını al
-
-*
-*WRITE: / 'Sütun Sayısı:', gv_fieldcount.
 *&---------------------------------------------------------------------*
 *&      Form  PF_STATUS_SET
 *&---------------------------------------------------------------------*
@@ -397,8 +345,8 @@ endform.
 *----------------------------------------------------------------------*
 form pf_status_set USING p_extab TYPE slis_t_extab.
   SET PF-STATUS 'STANDARD'.
-
 endform.                    " PF_STATUS_SET
+
 *&---------------------------------------------------------------------*
 *&      Form  USER_COMMAND
 *&---------------------------------------------------------------------*
@@ -409,24 +357,3 @@ endform.                    " PF_STATUS_SET
 *----------------------------------------------------------------------*
 form user_command USING p_ucomm     TYPE sy-ucomm
                   ps_selfield TYPE slis_selfield.
-*  DATA: gt_list TYPE gty_list.
-  DATA: lv_mes TYPE char200,
-        lv_ind TYPE numc2.
-CASE  p_ucomm.
-  WHEN '&MSG'.
-    LOOP AT gt_list INTO gs_list WHERE selkz eq 'x' .
-
-      lv_ind = lv_ind + 1 .
-
-    ENDLOOP.
-        CONCATENATE lv_ind
-                    'Sayı Kadar satır seçilmiştir .'
-                    INTO lv_mes
-                    SEPARATED BY space.
-    MESSAGE lv_mes TYPE 'I'.
-*  WHEN '&ICı'.
-*    MESSAGE 'Önceki sayfaya gitme butonuna basıldı'.
-
-ENDCASE.
-
- endform.                    " USER_COMMAND
