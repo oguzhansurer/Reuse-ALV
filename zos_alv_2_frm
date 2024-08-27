@@ -10,7 +10,7 @@
 *  <--  p2        text
 *----------------------------------------------------------------------*
 form get_data .
-  select
+  select 
    ekko~ebeln
    ekpo~ebelp
    ekko~bstyp
